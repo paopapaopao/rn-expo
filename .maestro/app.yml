@@ -1,5 +1,4 @@
-# Replace with your app's ios.bundleIdentifier / android.package from app.json
-appId: com.example.rnexpo
+appId: com.paopapaopao.rnexpo
 ---
 - launchApp
 - assertVisible: 'rn-expo'

@@ -32,7 +32,8 @@
     "lint": "expo lint",
     "test": "jest",
     "test:e2e:web": "playwright test",
-    "test:e2e:mobile": "maestro test .maestro"
+    "test:e2e:mobile": "maestro test .maestro",
+    "build:apk": "npx eas-cli@latest build -p android --profile preview"
   },
   "main": "index.ts",
   "jest": {
