@@ -35,7 +35,7 @@
     "test:e2e:mobile": "maestro test .maestro",
     "build:apk": "npx eas-cli@latest build -p android --profile preview"
   },
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "jest": {
     "preset": "jest-expo",
     "testPathIgnorePatterns": [
