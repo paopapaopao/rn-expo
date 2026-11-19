@@ -28,6 +28,11 @@
         "projectId": "5bd3b11c-d37c-4ccd-ad6c-c973af16c3a3"
       }
     },
-    "owner": "paopapaopao"
+    "owner": "paopapaopao",
+    "plugins": ["expo-router"],
+    "scheme": "rnexpo",
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }
