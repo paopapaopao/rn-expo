@@ -1,0 +1,78 @@
+import Constants from 'expo-constants';
+
+const BACKEND_PORT = 4000;
+
+// EXPO_PUBLIC_API_URL wins when set (required for production builds).
+// In development, fall back to the machine running the Expo dev server, so the
+// same code reaches the backend from a simulator, emulator, or physical device.
+const resolveBaseUrl = (): string => {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL.replace(/\/$/, '');
+  }
+
+  const host = Constants.expoConfig?.hostUri?.split(':')[0] ?? 'localhost';
+
+  return `http://${host}:${BACKEND_PORT}`;
+};
+
+export const API_URL = resolveBaseUrl();
+
+export type Difficulty = 'easy' | 'medium' | 'hard';
+
+export type MealType =
+  'breakfast' | 'lunch' | 'dinner' | 'beverage' | 'snack' | 'side dish' | 'appetizer' | 'dessert';
+
+// Mirrors `recipesTable` in express-drizzle/src/db/schema.ts (dates arrive as ISO strings)
+export type Recipe = {
+  id: number;
+  name: string;
+  image: string;
+  ingredients: string[];
+  instructions: string[];
+  prepTime: number | null;
+  cookTime: number | null;
+  difficulty: Difficulty | null;
+  servings: number | null;
+  calories: number | null;
+  cuisine: string | null;
+  mealTypes: MealType[] | null;
+  tags: string[] | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type NewRecipe = Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>;
+
+export class ApiError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+    readonly errors?: Record<string, string[]>,
+  ) {
+    super(message);
+  }
+}
+
+const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
+  const res = await fetch(`${API_URL}${path}`, {
+    ...init,
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new ApiError(res.status, body?.message ?? res.statusText, body?.errors);
+  }
+
+  return (res.status === 204 ? undefined : await res.json()) as T;
+};
+
+export const api = {
+  getRecipes: () => request<Recipe[]>('/recipes'),
+  getRecipe: (id: number) => request<Recipe>(`/recipes/${id}`),
+  createRecipe: (recipe: NewRecipe) =>
+    request<Recipe>('/recipes', { method: 'POST', body: JSON.stringify(recipe) }),
+  updateRecipe: (id: number, changes: Partial<NewRecipe>) =>
+    request<Recipe>(`/recipes/${id}`, { method: 'PATCH', body: JSON.stringify(changes) }),
+  deleteRecipe: (id: number) => request<void>(`/recipes/${id}`, { method: 'DELETE' }),
+};
