@@ -63,7 +63,11 @@ pnpm build:apk
 
 Builds an installable Android APK with [EAS Build](https://docs.expo.dev/build/introduction/).
 
-An APK is also built automatically on every push to `main` (including merged PRs) by the [EAS Workflow](https://docs.expo.dev/eas/workflows/get-started/) in `.eas/workflows/build-apk.yml`. Find the builds on the project's Builds page at expo.dev.
+On every push to `main` (including merged PRs), the GitHub Actions workflow in `.github/workflows/release-apk.yml` builds an APK with EAS and publishes it as the latest GitHub Release. The newest APK is always at:
+
+https://github.com/paopapaopao/rn-expo/releases/latest/download/rn-expo.apk
+
+The workflow needs an Expo access token saved as the `EXPO_TOKEN` repository secret. APKs built with the `preview` profile use the deployed API set in `eas.json`.
 
 ## Learn more
 
