@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { api } from '@/lib/api';
+import { api, type Recipe } from '@/lib/api';
 
 export const recipeKeys = {
   all: ['recipes'] as const,
@@ -12,3 +12,15 @@ export const useRecipes = () =>
     queryKey: recipeKeys.all,
     queryFn: api.getRecipes,
   });
+
+export const useRecipe = (id: number) => {
+  const queryClient = useQueryClient();
+
+  return useQuery({
+    queryKey: recipeKeys.detail(id),
+    queryFn: () => api.getRecipe(id),
+    // Show the recipe from the already-loaded list right away while the full one loads
+    placeholderData: () =>
+      queryClient.getQueryData<Recipe[]>(recipeKeys.all)?.find((recipe) => recipe.id === id),
+  });
+};

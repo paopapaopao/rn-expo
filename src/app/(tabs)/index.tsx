@@ -1,5 +1,15 @@
+import { Link } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Button, FlatList, Image, StyleSheet, Text, View } from 'react-native';
+import {
+  ActivityIndicator,
+  Button,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { useRecipes } from '@/hooks/use-recipes';
 import { API_URL } from '@/lib/api';
@@ -46,15 +56,21 @@ export default function HomeScreen() {
       contentContainerStyle={styles.list}
       ListEmptyComponent={<Text style={styles.muted}>No recipes yet.</Text>}
       renderItem={({ item }) => (
-        <View style={styles.row}>
-          <Image source={{ uri: item.image }} style={styles.image} />
-          <View style={styles.rowText}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.muted}>
-              {[item.cuisine, item.difficulty].filter(Boolean).join(' · ')}
-            </Text>
-          </View>
-        </View>
+        <Link href={{ pathname: '/recipes/[id]', params: { id: item.id } }} asChild>
+          <Pressable>
+            {({ pressed }) => (
+              <View style={[styles.row, pressed && styles.pressed]}>
+                <Image source={{ uri: item.image }} style={styles.image} />
+                <View style={styles.rowText}>
+                  <Text style={styles.name}>{item.name}</Text>
+                  <Text style={styles.muted}>
+                    {[item.cuisine, item.difficulty].filter(Boolean).join(' · ')}
+                  </Text>
+                </View>
+              </View>
+            )}
+          </Pressable>
+        </Link>
       )}
     />
   );
@@ -76,6 +92,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  pressed: {
+    opacity: 0.6,
   },
   image: {
     width: 56,
