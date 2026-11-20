@@ -63,6 +63,8 @@ pnpm build:apk
 
 Builds an installable Android APK with [EAS Build](https://docs.expo.dev/build/introduction/).
 
+An APK is also built automatically on every push to `main` (including merged PRs) by the [EAS Workflow](https://docs.expo.dev/eas/workflows/get-started/) in `.eas/workflows/build-apk.yml`. Find the builds on the project's Builds page at expo.dev.
+
 ## Learn more
 
 - [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
