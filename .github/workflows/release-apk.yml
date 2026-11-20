@@ -1,0 +1,55 @@
+name: Release APK
+
+# On every push to main (including merged PRs), build an APK with EAS and publish it
+# as the latest GitHub Release. The newest APK is always downloadable at:
+# https://github.com/paopapaopao/rn-expo/releases/latest/download/rn-expo.apk
+on:
+  push:
+    branches: [main]
+
+# Cancel an older run if a newer commit lands, so only the latest code is released
+concurrency:
+  group: release-apk
+  cancel-in-progress: true
+
+permissions:
+  contents: write # create releases
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build APK on EAS
+        run: |
+          eas build --platform android --profile preview --non-interactive --wait --json \
+            --message "${{ github.sha }}" > build.json
+          url=$(jq -r '.[0].artifacts.buildUrl' build.json)
+          curl -fsSL "$url" -o rn-expo.apk
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "apk-${{ github.run_number }}" rn-expo.apk \
+            --target "${{ github.sha }}" \
+            --title "APK build ${{ github.run_number }}" \
+            --generate-notes \
+            --latest
