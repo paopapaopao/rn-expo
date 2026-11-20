@@ -26,6 +26,18 @@ In the output, you'll find options to open the app in a
 
 Start editing in `App.tsx`.
 
+## Backend
+
+The app reads recipes from the [`express-drizzle`](../express-drizzle) API. Start it with `pnpm dev` in that folder before starting the app.
+
+In development the app finds the API on port 4000 of the machine running the Expo dev server, so it works from a simulator, emulator, or phone on the same network. To use another API (required for production builds, e.g. the APK), set it in `.env`:
+
+```bash
+EXPO_PUBLIC_API_URL=https://your-api.example.com
+```
+
+The API client lives in `src/lib/api.ts`.
+
 ## Scripts
 
 | Command                | Description                                  |
