@@ -20,7 +20,16 @@ import { API_URL, type Recipe } from '@/lib/api';
 const SHOW_SCROLL_TOP_AFTER_ITEMS = 3;
 
 export default function HomeScreen() {
-  const { data: recipes, error, refetch, isRefetching } = useRecipes();
+  const {
+    data: recipes,
+    error,
+    refetch,
+    isRefetching,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useRecipes();
   // Tracks only user-initiated refreshes, so background refetches don't show the spinner
   const [refreshing, setRefreshing] = useState(false);
   const listRef = useRef<FlatList<Recipe>>(null);
@@ -73,6 +82,28 @@ export default function HomeScreen() {
         onRefresh={refresh}
         contentContainerStyle={styles.list}
         onViewableItemsChanged={onViewableItemsChanged}
+        // Load the next page when the user is within half a screen of the bottom.
+        // Skip after a failed load so it doesn't retry in a loop; the footer has a Retry button.
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage && !isFetchNextPageError) fetchNextPage();
+        }}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <ActivityIndicator style={styles.footer} />
+          ) : isFetchNextPageError ? (
+            <View style={styles.footer}>
+              <Text style={styles.error}>Could not load more recipes</Text>
+              <Button title="Retry" onPress={() => fetchNextPage()} />
+            </View>
+          ) : !hasNextPage && recipes.length > 0 ? (
+            <Text style={[styles.muted, styles.footer, styles.end]}>
+              {recipes.length === 1
+                ? 'That’s the only recipe'
+                : `You’ve seen all ${recipes.length} recipes`}
+            </Text>
+          ) : undefined
+        }
         ListEmptyComponent={<Text style={styles.muted}>No recipes yet.</Text>}
         renderItem={({ item }) => (
           <Link href={{ pathname: '/recipes/[id]', params: { id: item.id } }} asChild>
@@ -114,6 +145,8 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 16,
+    // Room for the scroll-to-top button so it doesn't cover the last recipe
+    paddingBottom: 88,
     gap: 12,
   },
   row: {
@@ -128,6 +161,13 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 8,
+  },
+  footer: {
+    paddingVertical: 16,
+    gap: 8,
+  },
+  end: {
+    textAlign: 'center',
   },
   rowText: {
     flex: 1,
