@@ -1,5 +1,13 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, Button, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Link, Stack, useLocalSearchParams } from 'expo-router';
+import {
+  ActivityIndicator,
+  Button,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { RecipeImage } from '@/components/recipe-image';
 import { useRecipe } from '@/hooks/use-recipes';
@@ -43,7 +51,18 @@ export default function RecipeScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
-      <Stack.Screen options={{ title: recipe.name }} />
+      <Stack.Screen
+        options={{
+          title: recipe.name,
+          headerRight: () => (
+            <Link href={{ pathname: '/recipes/[id]/edit', params: { id: recipe.id } }} asChild>
+              <Pressable hitSlop={8}>
+                <Text style={styles.headerButton}>Edit</Text>
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
 
       <RecipeImage uri={recipe.image} style={styles.image} iconSize={64} />
       <Text style={styles.title}>{recipe.name}</Text>
@@ -84,6 +103,10 @@ export default function RecipeScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerButton: {
+    fontSize: 16,
+    color: '#1a73e8',
+  },
   center: {
     flex: 1,
     alignItems: 'center',
