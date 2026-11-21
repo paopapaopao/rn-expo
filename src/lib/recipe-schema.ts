@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { DIFFICULTIES, MEAL_TYPES, type NewRecipe, NO_IMAGE } from '@/lib/api';
+import { DIFFICULTIES, MEAL_TYPES, type NewRecipe, NO_IMAGE, type Recipe } from '@/lib/api';
 
 // Rules mirror the API's validation in express-drizzle/src/routers/recipes.ts.
 // Inputs are the form's raw values (text fields are strings); outputs are a `NewRecipe`.
@@ -72,3 +72,19 @@ export const emptyRecipeForm: RecipeFormValues = {
   mealTypes: [],
   tags: '',
 };
+
+// The reverse of `recipeFormSchema`: turns a saved recipe into form values for editing
+export const toRecipeFormValues = (recipe: Recipe): RecipeFormValues => ({
+  name: recipe.name,
+  image: recipe.image === NO_IMAGE ? '' : recipe.image,
+  ingredients: recipe.ingredients.join('\n'),
+  instructions: recipe.instructions.join('\n'),
+  prepTime: recipe.prepTime?.toString() ?? '',
+  cookTime: recipe.cookTime?.toString() ?? '',
+  servings: recipe.servings?.toString() ?? '',
+  calories: recipe.calories?.toString() ?? '',
+  difficulty: recipe.difficulty,
+  cuisine: recipe.cuisine ?? '',
+  mealTypes: recipe.mealTypes ?? [],
+  tags: recipe.tags?.join(', ') ?? '',
+});

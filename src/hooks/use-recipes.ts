@@ -37,3 +37,16 @@ export const useCreateRecipe = () => {
     },
   });
 };
+
+export const useUpdateRecipe = (id: number) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (changes: Partial<NewRecipe>) => api.updateRecipe(id, changes),
+    onSuccess: (recipe) => {
+      // Show the saved version on the recipe screen right away, and refetch the list
+      queryClient.setQueryData(recipeKeys.detail(id), recipe);
+      queryClient.invalidateQueries({ queryKey: recipeKeys.all, exact: true });
+    },
+  });
+};
