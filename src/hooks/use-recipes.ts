@@ -1,16 +1,29 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  type InfiniteData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
-import { api, type NewRecipe, type Recipe } from '@/lib/api';
+import { api, type NewRecipe, type RecipePage } from '@/lib/api';
 
 export const recipeKeys = {
   all: ['recipes'] as const,
   detail: (id: number) => ['recipes', id] as const,
 };
 
+type RecipePages = InfiniteData<RecipePage, number | undefined>;
+
+// Loads recipes one page at a time; call fetchNextPage to load more.
+// `data` is the loaded pages flattened into a single list.
 export const useRecipes = () =>
-  useQuery({
+  useInfiniteQuery({
     queryKey: recipeKeys.all,
-    queryFn: api.getRecipes,
+    queryFn: ({ pageParam }) => api.getRecipes(pageParam),
+    initialPageParam: undefined as number | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    select: (data) => data.pages.flatMap((page) => page.items),
   });
 
 export const useRecipe = (id: number) => {
@@ -21,7 +34,10 @@ export const useRecipe = (id: number) => {
     queryFn: () => api.getRecipe(id),
     // Show the recipe from the already-loaded list right away while the full one loads
     placeholderData: () =>
-      queryClient.getQueryData<Recipe[]>(recipeKeys.all)?.find((recipe) => recipe.id === id),
+      queryClient
+        .getQueryData<RecipePages>(recipeKeys.all)
+        ?.pages.flatMap((page) => page.items)
+        .find((recipe) => recipe.id === id),
   });
 };
 
@@ -57,10 +73,18 @@ export const useDeleteRecipe = (id: number) => {
   return useMutation({
     mutationFn: () => api.deleteRecipe(id),
     onSuccess: () => {
-      // Drop it from the list right away, then refetch the list to be sure.
+      // Drop it from the loaded pages right away, then refetch the list to be sure.
       // The recipe's own cache entry is cleared automatically once its screen closes.
-      queryClient.setQueryData<Recipe[]>(recipeKeys.all, (recipes) =>
-        recipes?.filter((recipe) => recipe.id !== id),
+      queryClient.setQueryData<RecipePages>(
+        recipeKeys.all,
+        (data) =>
+          data && {
+            ...data,
+            pages: data.pages.map((page) => ({
+              ...page,
+              items: page.items.filter((recipe) => recipe.id !== id),
+            })),
+          },
       );
       queryClient.invalidateQueries({ queryKey: recipeKeys.all, exact: true });
     },

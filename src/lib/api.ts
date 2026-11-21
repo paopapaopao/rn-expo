@@ -58,6 +58,14 @@ export type Recipe = {
 
 export type NewRecipe = Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>;
 
+// One page of GET /recipes. Pass `nextCursor` as `cursor` to get the next page; null on the last one.
+export type RecipePage = {
+  items: Recipe[];
+  nextCursor: number | null;
+};
+
+export const RECIPES_PAGE_SIZE = 10;
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -83,7 +91,12 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
 };
 
 export const api = {
-  getRecipes: () => request<Recipe[]>('/recipes'),
+  getRecipes: (cursor?: number) => {
+    const params = new URLSearchParams({ limit: String(RECIPES_PAGE_SIZE) });
+    if (cursor !== undefined) params.set('cursor', String(cursor));
+
+    return request<RecipePage>(`/recipes?${params}`);
+  },
   getRecipe: (id: number) => request<Recipe>(`/recipes/${id}`),
   createRecipe: (recipe: NewRecipe) =>
     request<Recipe>('/recipes', { method: 'POST', body: JSON.stringify(recipe) }),
