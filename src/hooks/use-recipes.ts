@@ -1,6 +1,6 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { api, type Recipe } from '@/lib/api';
+import { api, type NewRecipe, type Recipe } from '@/lib/api';
 
 export const recipeKeys = {
   all: ['recipes'] as const,
@@ -22,5 +22,18 @@ export const useRecipe = (id: number) => {
     // Show the recipe from the already-loaded list right away while the full one loads
     placeholderData: () =>
       queryClient.getQueryData<Recipe[]>(recipeKeys.all)?.find((recipe) => recipe.id === id),
+  });
+};
+
+export const useCreateRecipe = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (recipe: NewRecipe) => api.createRecipe(recipe),
+    onSuccess: (recipe) => {
+      // Cache the new recipe so its screen opens instantly, and refetch the list to include it
+      queryClient.setQueryData(recipeKeys.detail(recipe.id), recipe);
+      queryClient.invalidateQueries({ queryKey: recipeKeys.all, exact: true });
+    },
   });
 };

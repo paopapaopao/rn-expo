@@ -7,6 +7,7 @@ export default function RootLayout() {
     <Provider>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="recipes/new" options={{ title: 'New recipe' }} />
         <Stack.Screen name="recipes/[id]" options={{ title: 'Recipe' }} />
       </Stack>
     </Provider>

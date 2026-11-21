@@ -17,10 +17,25 @@ const resolveBaseUrl = (): string => {
 
 export const API_URL = resolveBaseUrl();
 
-export type Difficulty = 'easy' | 'medium' | 'hard';
+// Same values as the `difficulty` and `mealType` enums in express-drizzle/src/db/schema.ts
+export const DIFFICULTIES = ['easy', 'medium', 'hard'] as const;
+export const MEAL_TYPES = [
+  'breakfast',
+  'lunch',
+  'dinner',
+  'beverage',
+  'snack',
+  'side dish',
+  'appetizer',
+  'dessert',
+] as const;
 
-export type MealType =
-  'breakfast' | 'lunch' | 'dinner' | 'beverage' | 'snack' | 'side dish' | 'appetizer' | 'dessert';
+export type Difficulty = (typeof DIFFICULTIES)[number];
+export type MealType = (typeof MEAL_TYPES)[number];
+
+// The API requires an image, so recipes created without one store this value instead.
+// Temporary until the API's `image` column becomes optional.
+export const NO_IMAGE = 'none';
 
 // Mirrors `recipesTable` in express-drizzle/src/db/schema.ts (dates arrive as ISO strings)
 export type Recipe = {

@@ -1,6 +1,7 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, Button, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Button, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { RecipeImage } from '@/components/recipe-image';
 import { useRecipe } from '@/hooks/use-recipes';
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -44,7 +45,7 @@ export default function RecipeScreen() {
     <ScrollView contentContainerStyle={styles.content}>
       <Stack.Screen options={{ title: recipe.name }} />
 
-      <Image source={{ uri: recipe.image }} style={styles.image} />
+      <RecipeImage uri={recipe.image} style={styles.image} iconSize={64} />
       <Text style={styles.title}>{recipe.name}</Text>
 
       {details.length > 0 && (
