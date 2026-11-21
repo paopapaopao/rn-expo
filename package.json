@@ -2,6 +2,7 @@
   "name": "rn-expo",
   "version": "1.0.0",
   "dependencies": {
+    "@tanstack/react-form": "^1.33.5",
     "@tanstack/react-query": "^5.108.0",
     "expo": "~58.0.23",
     "expo-constants": "~58.0.16",
@@ -14,7 +15,8 @@
     "react-native": "0.88.1",
     "react-native-safe-area-context": "~5.11.1",
     "react-native-screens": "~4.30.1",
-    "react-native-web": "^0.21.4"
+    "react-native-web": "^0.21.4",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",

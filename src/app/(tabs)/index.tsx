@@ -4,13 +4,13 @@ import {
   ActivityIndicator,
   Button,
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 
+import { RecipeImage } from '@/components/recipe-image';
 import { useRecipes } from '@/hooks/use-recipes';
 import { API_URL } from '@/lib/api';
 
@@ -60,7 +60,7 @@ export default function HomeScreen() {
           <Pressable>
             {({ pressed }) => (
               <View style={[styles.row, pressed && styles.pressed]}>
-                <Image source={{ uri: item.image }} style={styles.image} />
+                <RecipeImage uri={item.image} style={styles.image} iconSize={24} />
                 <View style={styles.rowText}>
                   <Text style={styles.name}>{item.name}</Text>
                   <Text style={styles.muted}>
