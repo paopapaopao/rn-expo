@@ -1,5 +1,5 @@
 import { Link } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Button,
@@ -8,16 +8,32 @@ import {
   StyleSheet,
   Text,
   View,
+  type ListViewToken,
 } from 'react-native';
 
 import { RecipeImage } from '@/components/recipe-image';
+import { ScrollToTopButton } from '@/components/scroll-to-top-button';
 import { useRecipes } from '@/hooks/use-recipes';
-import { API_URL } from '@/lib/api';
+import { API_URL, type Recipe } from '@/lib/api';
+
+// Show the scroll-to-top button once this many recipes have scrolled off the top
+const SHOW_SCROLL_TOP_AFTER_ITEMS = 3;
 
 export default function HomeScreen() {
   const { data: recipes, error, refetch, isRefetching } = useRecipes();
   // Tracks only user-initiated refreshes, so background refetches don't show the spinner
   const [refreshing, setRefreshing] = useState(false);
+  const listRef = useRef<FlatList<Recipe>>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // FlatList requires this callback to never change, hence useCallback with no dependencies
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: ListViewToken[] }) => {
+      const firstVisible = viewableItems[0]?.index ?? 0;
+      setShowScrollTop(firstVisible >= SHOW_SCROLL_TOP_AFTER_ITEMS);
+    },
+    [],
+  );
 
   const refresh = async () => {
     setRefreshing(true);
@@ -48,35 +64,47 @@ export default function HomeScreen() {
   }
 
   return (
-    <FlatList
-      data={recipes}
-      keyExtractor={(item) => String(item.id)}
-      refreshing={refreshing}
-      onRefresh={refresh}
-      contentContainerStyle={styles.list}
-      ListEmptyComponent={<Text style={styles.muted}>No recipes yet.</Text>}
-      renderItem={({ item }) => (
-        <Link href={{ pathname: '/recipes/[id]', params: { id: item.id } }} asChild>
-          <Pressable>
-            {({ pressed }) => (
-              <View style={[styles.row, pressed && styles.pressed]}>
-                <RecipeImage uri={item.image} style={styles.image} iconSize={24} />
-                <View style={styles.rowText}>
-                  <Text style={styles.name}>{item.name}</Text>
-                  <Text style={styles.muted}>
-                    {[item.cuisine, item.difficulty].filter(Boolean).join(' · ')}
-                  </Text>
+    <View style={styles.screen}>
+      <FlatList
+        ref={listRef}
+        data={recipes}
+        keyExtractor={(item) => String(item.id)}
+        refreshing={refreshing}
+        onRefresh={refresh}
+        contentContainerStyle={styles.list}
+        onViewableItemsChanged={onViewableItemsChanged}
+        ListEmptyComponent={<Text style={styles.muted}>No recipes yet.</Text>}
+        renderItem={({ item }) => (
+          <Link href={{ pathname: '/recipes/[id]', params: { id: item.id } }} asChild>
+            <Pressable>
+              {({ pressed }) => (
+                <View style={[styles.row, pressed && styles.pressed]}>
+                  <RecipeImage uri={item.image} style={styles.image} iconSize={24} />
+                  <View style={styles.rowText}>
+                    <Text style={styles.name}>{item.name}</Text>
+                    <Text style={styles.muted}>
+                      {[item.cuisine, item.difficulty].filter(Boolean).join(' · ')}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            )}
-          </Pressable>
-        </Link>
+              )}
+            </Pressable>
+          </Link>
+        )}
+      />
+      {showScrollTop && (
+        <ScrollToTopButton
+          onPress={() => listRef.current?.scrollToOffset({ offset: 0, animated: true })}
+        />
       )}
-    />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   center: {
     flex: 1,
     alignItems: 'center',
