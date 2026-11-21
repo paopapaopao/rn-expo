@@ -1,9 +1,7 @@
-import { Link, router, Stack, useLocalSearchParams } from 'expo-router';
+import { Link, Stack, useLocalSearchParams } from 'expo-router';
 import {
   ActivityIndicator,
-  Alert,
   Button,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,36 +10,13 @@ import {
 } from 'react-native';
 
 import { RecipeImage } from '@/components/recipe-image';
-import { useDeleteRecipe, useRecipe } from '@/hooks/use-recipes';
+import { useRecipe } from '@/hooks/use-recipes';
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-
-// Asks before a destructive action. Alert.alert has no buttons on web, so use the browser's dialog there.
-const confirmDelete = (name: string, onConfirm: () => void) => {
-  const message = `"${name}" will be permanently deleted.`;
-
-  if (Platform.OS === 'web') {
-    if (window.confirm(message)) onConfirm();
-
-    return;
-  }
-
-  Alert.alert('Delete recipe?', message, [
-    { text: 'Cancel', style: 'cancel' },
-    { text: 'Delete', style: 'destructive', onPress: onConfirm },
-  ]);
-};
 
 export default function RecipeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: recipe, error, refetch, isRefetching } = useRecipe(Number(id));
-  const deleteRecipe = useDeleteRecipe(Number(id));
-
-  const handleDelete = () =>
-    deleteRecipe.mutate(undefined, {
-      // Go back to where the user came from, or Home if the recipe was opened from a link
-      onSuccess: () => (router.canGoBack() ? router.back() : router.replace('/')),
-    });
 
   if (error && !recipe) {
     return (
@@ -123,51 +98,11 @@ export default function RecipeScreen() {
           {recipe.tags.map((t) => `#${t}`).join('  ')}
         </Text>
       )}
-
-      {deleteRecipe.error && (
-        <Text style={[styles.error, styles.deleteError]}>
-          Could not delete the recipe: {deleteRecipe.error.message}
-        </Text>
-      )}
-
-      <Pressable
-        style={({ pressed }) => [
-          styles.deleteButton,
-          (pressed || deleteRecipe.isPending) && styles.dim,
-        ]}
-        onPress={() => confirmDelete(recipe.name, handleDelete)}
-        disabled={deleteRecipe.isPending}
-      >
-        {deleteRecipe.isPending ? (
-          <ActivityIndicator color="#c00" />
-        ) : (
-          <Text style={styles.deleteText}>Delete recipe</Text>
-        )}
-      </Pressable>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  deleteButton: {
-    marginTop: 32,
-    borderWidth: 1,
-    borderColor: '#c00',
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  deleteText: {
-    color: '#c00',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  deleteError: {
-    marginTop: 24,
-  },
-  dim: {
-    opacity: 0.6,
-  },
   headerButton: {
     fontSize: 16,
     color: '#1a73e8',

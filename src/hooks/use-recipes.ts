@@ -50,19 +50,3 @@ export const useUpdateRecipe = (id: number) => {
     },
   });
 };
-
-export const useDeleteRecipe = (id: number) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: () => api.deleteRecipe(id),
-    onSuccess: () => {
-      // Drop it from the list right away, then refetch the list to be sure.
-      // The recipe's own cache entry is cleared automatically once its screen closes.
-      queryClient.setQueryData<Recipe[]>(recipeKeys.all, (recipes) =>
-        recipes?.filter((recipe) => recipe.id !== id),
-      );
-      queryClient.invalidateQueries({ queryKey: recipeKeys.all, exact: true });
-    },
-  });
-};
