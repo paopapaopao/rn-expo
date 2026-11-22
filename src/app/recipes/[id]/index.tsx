@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { RecipeImage } from '@/components/recipe-image';
+import { RecipeDetailSkeleton } from '@/components/recipe-skeletons';
 import { useDeleteRecipe, useRecipe } from '@/hooks/use-recipes';
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -58,11 +59,7 @@ export default function RecipeScreen() {
   }
 
   if (!recipe) {
-    return (
-      <View style={styles.center}>
-        <ActivityIndicator />
-      </View>
-    );
+    return <RecipeDetailSkeleton />;
   }
 
   const details = [

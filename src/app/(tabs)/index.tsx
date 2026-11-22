@@ -1,7 +1,6 @@
 import { Link } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Button,
   FlatList,
   Pressable,
@@ -12,9 +11,10 @@ import {
 } from 'react-native';
 
 import { RecipeImage } from '@/components/recipe-image';
+import { RecipeRowSkeletons } from '@/components/recipe-skeletons';
 import { ScrollToTopButton } from '@/components/scroll-to-top-button';
 import { useRecipes } from '@/hooks/use-recipes';
-import { API_URL, type Recipe } from '@/lib/api';
+import { API_URL, RECIPES_PAGE_SIZE, type Recipe } from '@/lib/api';
 
 // Show the scroll-to-top button once this many recipes have scrolled off the top
 const SHOW_SCROLL_TOP_AFTER_ITEMS = 3;
@@ -66,8 +66,8 @@ export default function HomeScreen() {
 
   if (!recipes) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator />
+      <View style={styles.list} accessibilityLabel="Loading recipes">
+        <RecipeRowSkeletons count={RECIPES_PAGE_SIZE} />
       </View>
     );
   }
@@ -90,7 +90,7 @@ export default function HomeScreen() {
         onEndReachedThreshold={0.5}
         ListFooterComponent={
           isFetchingNextPage ? (
-            <ActivityIndicator style={styles.footer} />
+            <RecipeRowSkeletons count={2} />
           ) : isFetchNextPageError ? (
             <View style={styles.footer}>
               <Text style={styles.error}>Could not load more recipes</Text>
