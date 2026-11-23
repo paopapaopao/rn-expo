@@ -10,6 +10,7 @@ import {
   View,
   type ListViewToken,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RecipeImage } from '@/components/recipe-image';
 import { RecipeRowSkeletons } from '@/components/recipe-skeletons';
@@ -25,6 +26,7 @@ const SHOW_SCROLL_TOP_AFTER_ITEMS = 3;
 
 export default function HomeScreen() {
   const [searchText, setSearchText] = useState('');
+  const insets = useSafeAreaInsets();
   // Search only once the user pauses typing, instead of on every keystroke
   const name = useDebouncedValue(searchText.trim(), 300);
   // Advanced search filters, set on the Advanced search screen
@@ -104,7 +106,8 @@ export default function HomeScreen() {
         onRefresh={refresh}
         // Dim the previous results while a new search loads
         style={isPlaceholderData && styles.stale}
-        contentContainerStyle={styles.list}
+        // Extra bottom room so the last recipe clears the gesture bar
+        contentContainerStyle={[styles.list, { paddingBottom: 88 + insets.bottom }]}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         onViewableItemsChanged={onViewableItemsChanged}
@@ -306,6 +309,7 @@ const styles = StyleSheet.create({
   list: {
     padding: 16,
     // Room for the scroll-to-top button so it doesn't cover the last recipe
+    // (the list adds the bottom safe-area inset on top of this)
     paddingBottom: 88,
     gap: 12,
   },
