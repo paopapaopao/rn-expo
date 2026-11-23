@@ -1,27 +1,36 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type Props = {
   onPress: () => void;
 };
 
 // Round button floating in the bottom-right corner. Place it inside a container with flex: 1.
-export const ScrollToTopButton = ({ onPress }: Props) => (
-  <Pressable
-    onPress={onPress}
-    accessibilityRole="button"
-    accessibilityLabel="Scroll to top"
-    hitSlop={8}
-    style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-  >
-    <Text style={styles.icon}>↑</Text>
-  </Pressable>
-);
+export const ScrollToTopButton = ({ onPress }: Props) => {
+  // Stay clear of the home indicator / gesture bar
+  const insets = useSafeAreaInsets();
+
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel="Scroll to top"
+      hitSlop={8}
+      style={({ pressed }) => [
+        styles.button,
+        { bottom: 20 + insets.bottom },
+        pressed && styles.pressed,
+      ]}
+    >
+      <Text style={styles.icon}>↑</Text>
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
   button: {
     position: 'absolute',
     right: 20,
-    bottom: 20,
     width: 52,
     height: 52,
     borderRadius: 26,

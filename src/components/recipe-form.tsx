@@ -1,5 +1,4 @@
 import { useForm } from '@tanstack/react-form';
-import { type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -7,25 +6,18 @@ import {
   type StyleProp,
   StyleSheet,
   Text,
-  TextInput,
   type TextInputProps,
   View,
   type ViewStyle,
 } from 'react-native';
 
+import { Chip, Chips, Field, firstError, Input } from '@/components/form-fields';
 import { ApiError, DIFFICULTIES, MEAL_TYPES, type NewRecipe } from '@/lib/api';
 import { recipeFormSchema, type RecipeFormValues } from '@/lib/recipe-schema';
 
 type TextFieldName = {
   [K in keyof RecipeFormValues]: RecipeFormValues[K] extends string ? K : never;
 }[keyof RecipeFormValues];
-
-// Field errors are Zod issues (from the schema) or strings (from the API)
-const firstError = (errors: unknown[]) => {
-  const error = errors[0];
-
-  return typeof error === 'string' ? error : (error as { message?: string } | undefined)?.message;
-};
 
 type RecipeFormProps = {
   defaultValues: RecipeFormValues;
@@ -141,7 +133,7 @@ export const RecipeForm = ({ defaultValues, submitLabel, onSubmit }: RecipeFormP
       <form.Field name="difficulty">
         {(field) => (
           <Field label="Difficulty" error={firstError(field.state.meta.errors)}>
-            <View style={styles.chips}>
+            <Chips>
               {DIFFICULTIES.map((d) => (
                 <Chip
                   key={d}
@@ -150,7 +142,7 @@ export const RecipeForm = ({ defaultValues, submitLabel, onSubmit }: RecipeFormP
                   onPress={() => field.handleChange(field.state.value === d ? null : d)}
                 />
               ))}
-            </View>
+            </Chips>
           </Field>
         )}
       </form.Field>
@@ -158,7 +150,7 @@ export const RecipeForm = ({ defaultValues, submitLabel, onSubmit }: RecipeFormP
       <form.Field name="mealTypes">
         {(field) => (
           <Field label="Meal types" error={firstError(field.state.meta.errors)}>
-            <View style={styles.chips}>
+            <Chips>
               {MEAL_TYPES.map((m) => {
                 const selected = field.state.value.includes(m);
 
@@ -177,7 +169,7 @@ export const RecipeForm = ({ defaultValues, submitLabel, onSubmit }: RecipeFormP
                   />
                 );
               })}
-            </View>
+            </Chips>
           </Field>
         )}
       </form.Field>
@@ -213,56 +205,11 @@ export const RecipeForm = ({ defaultValues, submitLabel, onSubmit }: RecipeFormP
   );
 };
 
-type FieldProps = {
-  label: string;
-  hint?: string;
-  error?: string;
-  style?: StyleProp<ViewStyle>;
-  children: ReactNode;
-};
-
-const Field = ({ label, hint, error, style, children }: FieldProps) => (
-  <View style={[styles.field, style]}>
-    <Text style={styles.label}>
-      {label}
-      {hint && <Text style={styles.muted}> · {hint}</Text>}
-    </Text>
-    {children}
-    {error && <Text style={styles.error}>{error}</Text>}
-  </View>
-);
-
-const Input = ({ multiline, style, ...props }: TextInputProps) => (
-  <TextInput
-    style={[styles.input, multiline && styles.multiline, style]}
-    multiline={multiline}
-    textAlignVertical={multiline ? 'top' : 'center'}
-    placeholderTextColor="#999"
-    {...props}
-  />
-);
-
-type ChipProps = { label: string; selected: boolean; onPress: () => void };
-
-const Chip = ({ label, selected, onPress }: ChipProps) => (
-  <Pressable
-    onPress={onPress}
-    style={[styles.chip, selected && styles.chipSelected]}
-    accessibilityRole="checkbox"
-    accessibilityState={{ checked: selected }}
-  >
-    <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{label}</Text>
-  </Pressable>
-);
-
 const styles = StyleSheet.create({
   content: {
     padding: 16,
     paddingBottom: 32,
     gap: 16,
-  },
-  field: {
-    gap: 6,
   },
   row: {
     flexDirection: 'row',
@@ -270,45 +217,6 @@ const styles = StyleSheet.create({
   },
   half: {
     flex: 1,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
-    backgroundColor: '#fff',
-  },
-  multiline: {
-    minHeight: 110,
-  },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  chip: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: '#fff',
-  },
-  chipSelected: {
-    backgroundColor: '#1a73e8',
-    borderColor: '#1a73e8',
-  },
-  chipText: {
-    textTransform: 'capitalize',
-  },
-  chipTextSelected: {
-    color: '#fff',
   },
   submit: {
     backgroundColor: '#1a73e8',
@@ -323,10 +231,6 @@ const styles = StyleSheet.create({
   },
   dim: {
     opacity: 0.6,
-  },
-  muted: {
-    color: '#666',
-    fontWeight: '400',
   },
   error: {
     color: '#c00',

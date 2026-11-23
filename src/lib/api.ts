@@ -66,6 +66,28 @@ export type RecipePage = {
 
 export const RECIPES_PAGE_SIZE = 10;
 
+// Advanced search filters, matching GET /recipes' query parameters in express-drizzle.
+// Text matches anywhere, case-insensitive. Lists of terms must all match; lists of options match any.
+export type RecipeFilters = {
+  cuisine?: string;
+  ingredients?: string[];
+  instructions?: string[];
+  tags?: string[];
+  difficulty?: Difficulty[];
+  mealTypes?: MealType[];
+  prepTimeMin?: number;
+  prepTimeMax?: number;
+  cookTimeMin?: number;
+  cookTimeMax?: number;
+  servingsMin?: number;
+  servingsMax?: number;
+  caloriesMin?: number;
+  caloriesMax?: number;
+};
+
+// Everything a recipe list can be narrowed by: the search bar's name plus the advanced filters
+export type RecipeSearch = RecipeFilters & { name?: string };
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -91,8 +113,14 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
 };
 
 export const api = {
-  getRecipes: (cursor?: number) => {
+  getRecipes: (search: RecipeSearch, cursor?: number) => {
     const params = new URLSearchParams({ limit: String(RECIPES_PAGE_SIZE) });
+
+    for (const [key, value] of Object.entries(search)) {
+      if (value === undefined || value === '') continue;
+      // Lists are sent comma-separated, e.g. ingredients=tomato,basil
+      params.set(key, Array.isArray(value) ? value.join(',') : String(value));
+    }
     if (cursor !== undefined) params.set('cursor', String(cursor));
 
     return request<RecipePage>(`/recipes?${params}`);
