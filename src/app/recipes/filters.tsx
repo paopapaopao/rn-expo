@@ -22,6 +22,7 @@ import {
   type RecipeFiltersFormValues,
   toFiltersFormValues,
 } from '@/lib/recipe-filters-schema';
+import { makeStyles } from '@/lib/theme';
 
 type TextFieldName = {
   [K in keyof RecipeFiltersFormValues]: RecipeFiltersFormValues[K] extends string ? K : never;
@@ -41,6 +42,7 @@ const toggle = <T,>(list: T[], value: T) =>
 export default function FiltersScreen() {
   const { filters, setFilters } = useRecipeFilters();
   const insets = useSafeAreaInsets();
+  const styles = useStyles();
 
   const form = useForm({
     defaultValues: toFiltersFormValues(filters),
@@ -181,7 +183,7 @@ export default function FiltersScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   screen: {
     flex: 1,
   },
@@ -197,6 +199,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   rangeLabel: {
+    color: c.text,
     fontSize: 16,
     fontWeight: '700',
   },
@@ -209,8 +212,8 @@ const styles = StyleSheet.create({
     gap: 12,
     padding: 16,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#ccc',
-    backgroundColor: '#fff',
+    borderTopColor: c.border,
+    backgroundColor: c.surface,
   },
   button: {
     flex: 1,
@@ -220,22 +223,22 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     borderWidth: 1,
-    borderColor: '#1a73e8',
+    borderColor: c.primary,
   },
   resetText: {
-    color: '#1a73e8',
+    color: c.primary,
     fontSize: 16,
     fontWeight: '600',
   },
   applyButton: {
-    backgroundColor: '#1a73e8',
+    backgroundColor: c.primary,
   },
   applyText: {
-    color: '#fff',
+    color: c.onPrimary,
     fontSize: 16,
     fontWeight: '600',
   },
   dim: {
     opacity: 0.6,
   },
-});
+}));

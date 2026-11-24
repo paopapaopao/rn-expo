@@ -1,14 +1,16 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, Button, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Button, Text, View } from 'react-native';
 
 import { RecipeForm } from '@/components/recipe-form';
 import { useRecipe, useUpdateRecipe } from '@/hooks/use-recipes';
 import { toRecipeFormValues } from '@/lib/recipe-schema';
+import { makeStyles } from '@/lib/theme';
 
 export default function EditRecipeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: recipe, error, refetch, isRefetching } = useRecipe(Number(id));
   const updateRecipe = useUpdateRecipe(Number(id));
+  const styles = useStyles();
 
   if (error && !recipe) {
     return (
@@ -45,7 +47,7 @@ export default function EditRecipeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   center: {
     flex: 1,
     alignItems: 'center',
@@ -54,10 +56,10 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   muted: {
-    color: '#666',
+    color: c.muted,
   },
   error: {
-    color: '#c00',
+    color: c.danger,
     textAlign: 'center',
   },
-});
+}));

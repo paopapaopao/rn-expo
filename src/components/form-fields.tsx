@@ -2,13 +2,14 @@ import { type ReactNode } from 'react';
 import {
   Pressable,
   type StyleProp,
-  StyleSheet,
   Text,
   TextInput,
   type TextInputProps,
   View,
   type ViewStyle,
 } from 'react-native';
+
+import { makeStyles, useColors } from '@/lib/theme';
 
 // Field errors are Zod issues (from a schema) or strings (from the API)
 export const firstError = (errors: unknown[]) => {
@@ -26,61 +27,78 @@ type FieldProps = {
 };
 
 // Label, input and error message
-export const Field = ({ label, hint, error, style, children }: FieldProps) => (
-  <View style={[styles.field, style]}>
-    <Text style={styles.label}>
-      {label}
-      {hint && <Text style={styles.muted}> · {hint}</Text>}
-    </Text>
-    {children}
-    {error && <Text style={styles.error}>{error}</Text>}
-  </View>
-);
+export const Field = ({ label, hint, error, style, children }: FieldProps) => {
+  const styles = useStyles();
 
-export const Input = ({ multiline, style, ...props }: TextInputProps) => (
-  <TextInput
-    style={[styles.input, multiline && styles.multiline, style]}
-    multiline={multiline}
-    textAlignVertical={multiline ? 'top' : 'center'}
-    placeholderTextColor="#999"
-    {...props}
-  />
-);
+  return (
+    <View style={[styles.field, style]}>
+      <Text style={styles.label}>
+        {label}
+        {hint && <Text style={styles.muted}> · {hint}</Text>}
+      </Text>
+      {children}
+      {error && <Text style={styles.error}>{error}</Text>}
+    </View>
+  );
+};
+
+export const Input = ({ multiline, style, ...props }: TextInputProps) => {
+  const styles = useStyles();
+  const colors = useColors();
+
+  return (
+    <TextInput
+      style={[styles.input, multiline && styles.multiline, style]}
+      multiline={multiline}
+      textAlignVertical={multiline ? 'top' : 'center'}
+      placeholderTextColor={colors.placeholder}
+      {...props}
+    />
+  );
+};
 
 type ChipProps = { label: string; selected: boolean; onPress: () => void };
 
 // Toggleable pill, for picking from a few fixed options
-export const Chip = ({ label, selected, onPress }: ChipProps) => (
-  <Pressable
-    onPress={onPress}
-    style={[styles.chip, selected && styles.chipSelected]}
-    accessibilityRole="checkbox"
-    accessibilityState={{ checked: selected }}
-  >
-    <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{label}</Text>
-  </Pressable>
-);
+export const Chip = ({ label, selected, onPress }: ChipProps) => {
+  const styles = useStyles();
 
-export const Chips = ({ children }: { children: ReactNode }) => (
-  <View style={styles.chips}>{children}</View>
-);
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[styles.chip, selected && styles.chipSelected]}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: selected }}
+    >
+      <Text style={[styles.chipText, selected && styles.chipTextSelected]}>{label}</Text>
+    </Pressable>
+  );
+};
 
-const styles = StyleSheet.create({
+export const Chips = ({ children }: { children: ReactNode }) => {
+  const styles = useStyles();
+
+  return <View style={styles.chips}>{children}</View>;
+};
+
+const useStyles = makeStyles((c) => ({
   field: {
     gap: 6,
   },
   label: {
     fontSize: 14,
     fontWeight: '600',
+    color: c.text,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: c.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
-    backgroundColor: '#fff',
+    color: c.text,
+    backgroundColor: c.surface,
   },
   multiline: {
     minHeight: 110,
@@ -92,27 +110,28 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: c.border,
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#fff',
+    backgroundColor: c.surface,
   },
   chipSelected: {
-    backgroundColor: '#1a73e8',
-    borderColor: '#1a73e8',
+    backgroundColor: c.primary,
+    borderColor: c.primary,
   },
   chipText: {
+    color: c.text,
     textTransform: 'capitalize',
   },
   chipTextSelected: {
-    color: '#fff',
+    color: c.onPrimary,
   },
   muted: {
-    color: '#666',
+    color: c.muted,
     fontWeight: '400',
   },
   error: {
-    color: '#c00',
+    color: c.danger,
   },
-});
+}));

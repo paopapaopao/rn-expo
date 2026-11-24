@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Image, type ImageStyle, type StyleProp, StyleSheet, Text, View } from 'react-native';
+import { Image, type ImageStyle, type StyleProp, Text, View } from 'react-native';
 
 import { NO_IMAGE } from '@/lib/api';
+import { makeStyles } from '@/lib/theme';
 
 type Props = {
   uri: string;
@@ -12,6 +13,7 @@ type Props = {
 
 // Shows the recipe's photo, or a placeholder when it has none or the URL fails to load
 export const RecipeImage = ({ uri, style, iconSize }: Props) => {
+  const styles = useStyles();
   const [failedUri, setFailedUri] = useState<string | null>(null);
 
   if (uri !== NO_IMAGE && uri !== failedUri) {
@@ -25,10 +27,10 @@ export const RecipeImage = ({ uri, style, iconSize }: Props) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   placeholder: {
-    backgroundColor: '#e4e4e4',
+    backgroundColor: c.fill,
     alignItems: 'center',
     justifyContent: 'center',
   },
-});
+}));
