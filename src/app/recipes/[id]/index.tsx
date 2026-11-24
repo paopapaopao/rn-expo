@@ -6,7 +6,6 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from 'react-native';
@@ -14,6 +13,7 @@ import {
 import { RecipeImage } from '@/components/recipe-image';
 import { RecipeDetailSkeleton } from '@/components/recipe-skeletons';
 import { useDeleteRecipe, useRecipe } from '@/hooks/use-recipes';
+import { makeStyles, useColors } from '@/lib/theme';
 
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -37,6 +37,8 @@ export default function RecipeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: recipe, error, refetch, isRefetching } = useRecipe(Number(id));
   const deleteRecipe = useDeleteRecipe(Number(id));
+  const styles = useStyles();
+  const colors = useColors();
 
   const handleDelete = () =>
     deleteRecipe.mutate(undefined, {
@@ -136,7 +138,7 @@ export default function RecipeScreen() {
         disabled={deleteRecipe.isPending}
       >
         {deleteRecipe.isPending ? (
-          <ActivityIndicator color="#c00" />
+          <ActivityIndicator color={colors.danger} />
         ) : (
           <Text style={styles.deleteText}>Delete recipe</Text>
         )}
@@ -145,17 +147,17 @@ export default function RecipeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   deleteButton: {
     marginTop: 32,
     borderWidth: 1,
-    borderColor: '#c00',
+    borderColor: c.danger,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
   },
   deleteText: {
-    color: '#c00',
+    color: c.danger,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -167,7 +169,7 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     fontSize: 16,
-    color: '#1a73e8',
+    color: c.primary,
   },
   center: {
     flex: 1,
@@ -186,6 +188,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   title: {
+    color: c.text,
     fontSize: 24,
     fontWeight: '700',
     marginTop: 16,
@@ -200,16 +203,19 @@ const styles = StyleSheet.create({
     minWidth: 90,
   },
   detailValue: {
+    color: c.text,
     fontSize: 15,
     fontWeight: '600',
   },
   heading: {
+    color: c.text,
     fontSize: 18,
     fontWeight: '700',
     marginTop: 24,
     marginBottom: 8,
   },
   body: {
+    color: c.text,
     fontSize: 15,
     lineHeight: 22,
   },
@@ -219,6 +225,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   stepNumber: {
+    color: c.text,
     fontSize: 15,
     lineHeight: 22,
     fontWeight: '600',
@@ -230,10 +237,10 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   muted: {
-    color: '#666',
+    color: c.muted,
   },
   error: {
-    color: '#c00',
+    color: c.danger,
     textAlign: 'center',
   },
-});
+}));

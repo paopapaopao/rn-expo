@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
-import {
-  Animated,
-  type DimensionValue,
-  type StyleProp,
-  StyleSheet,
-  type ViewStyle,
-} from 'react-native';
+import { Animated, type DimensionValue, type StyleProp, type ViewStyle } from 'react-native';
+
+import { makeStyles } from '@/lib/theme';
 
 type Props = {
   width?: DimensionValue;
@@ -15,6 +11,7 @@ type Props = {
 
 // Grey block that gently pulses, standing in for content that is still loading
 export const Skeleton = ({ width = '100%', height = 16, style }: Props) => {
+  const styles = useStyles();
   const [opacity] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
@@ -32,9 +29,9 @@ export const Skeleton = ({ width = '100%', height = 16, style }: Props) => {
   return <Animated.View style={[styles.block, { width, height, opacity }, style]} />;
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   block: {
-    backgroundColor: '#e4e4e4',
+    backgroundColor: c.fill,
     borderRadius: 6,
   },
-});
+}));

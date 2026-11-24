@@ -4,7 +4,6 @@ import {
   Button,
   FlatList,
   Pressable,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -20,6 +19,7 @@ import { useRecipeFilters } from '@/hooks/use-recipe-filters';
 import { useRecipes } from '@/hooks/use-recipes';
 import { API_URL, RECIPES_PAGE_SIZE, type Recipe } from '@/lib/api';
 import { countFilters } from '@/lib/recipe-filters-schema';
+import { makeStyles, useColors } from '@/lib/theme';
 
 // Show the scroll-to-top button once this many recipes have scrolled off the top
 const SHOW_SCROLL_TOP_AFTER_ITEMS = 3;
@@ -27,6 +27,8 @@ const SHOW_SCROLL_TOP_AFTER_ITEMS = 3;
 export default function HomeScreen() {
   const [searchText, setSearchText] = useState('');
   const insets = useSafeAreaInsets();
+  const styles = useStyles();
+  const colors = useColors();
   // Search only once the user pauses typing, instead of on every keystroke
   const name = useDebouncedValue(searchText.trim(), 300);
   // Advanced search filters, set on the Advanced search screen
@@ -169,7 +171,7 @@ export default function HomeScreen() {
             value={searchText}
             onChangeText={changeSearch}
             placeholder="Search by name"
-            placeholderTextColor="#888"
+            placeholderTextColor={colors.placeholder}
             style={styles.searchInput}
             returnKeyType="search"
             autoCapitalize="none"
@@ -237,7 +239,7 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   screen: {
     flex: 1,
   },
@@ -253,31 +255,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 12,
     borderRadius: 10,
-    backgroundColor: '#e8e8e8',
+    backgroundColor: c.fill,
   },
   searchInput: {
     flex: 1,
     paddingVertical: 10,
     fontSize: 16,
-    color: '#000',
+    color: c.text,
   },
   filtersButton: {
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 14,
     borderRadius: 10,
-    backgroundColor: '#e8e8e8',
+    backgroundColor: c.fill,
   },
   filtersButtonActive: {
-    backgroundColor: '#1a73e8',
+    backgroundColor: c.primary,
   },
   filtersText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#1a73e8',
+    color: c.primary,
   },
   filtersTextActive: {
-    color: '#fff',
+    color: c.onPrimary,
   },
   activeFilters: {
     flexDirection: 'row',
@@ -286,7 +288,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   link: {
-    color: '#1a73e8',
+    color: c.primary,
     fontWeight: '600',
   },
   clearButton: {
@@ -294,7 +296,7 @@ const styles = StyleSheet.create({
   },
   clearText: {
     fontSize: 16,
-    color: '#666',
+    color: c.muted,
   },
   stale: {
     opacity: 0.5,
@@ -339,12 +341,13 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: '600',
+    color: c.text,
   },
   muted: {
-    color: '#666',
+    color: c.muted,
   },
   error: {
-    color: '#c00',
+    color: c.danger,
     textAlign: 'center',
   },
-});
+}));

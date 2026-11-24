@@ -4,7 +4,6 @@ import {
   Pressable,
   ScrollView,
   type StyleProp,
-  StyleSheet,
   Text,
   type TextInputProps,
   View,
@@ -14,6 +13,7 @@ import {
 import { Chip, Chips, Field, firstError, Input } from '@/components/form-fields';
 import { ApiError, DIFFICULTIES, MEAL_TYPES, type NewRecipe } from '@/lib/api';
 import { recipeFormSchema, type RecipeFormValues } from '@/lib/recipe-schema';
+import { makeStyles, useColors } from '@/lib/theme';
 
 type TextFieldName = {
   [K in keyof RecipeFormValues]: RecipeFormValues[K] extends string ? K : never;
@@ -28,6 +28,8 @@ type RecipeFormProps = {
 
 // Form for creating or editing a recipe, validated with `recipeFormSchema`
 export const RecipeForm = ({ defaultValues, submitLabel, onSubmit }: RecipeFormProps) => {
+  const styles = useStyles();
+  const colors = useColors();
   const form = useForm({
     defaultValues,
     validators: {
@@ -193,7 +195,7 @@ export const RecipeForm = ({ defaultValues, submitLabel, onSubmit }: RecipeFormP
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={colors.onPrimary} />
               ) : (
                 <Text style={styles.submitText}>{submitLabel}</Text>
               )}
@@ -205,7 +207,7 @@ export const RecipeForm = ({ defaultValues, submitLabel, onSubmit }: RecipeFormP
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   content: {
     padding: 16,
     paddingBottom: 32,
@@ -219,13 +221,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   submit: {
-    backgroundColor: '#1a73e8',
+    backgroundColor: c.primary,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
   },
   submitText: {
-    color: '#fff',
+    color: c.onPrimary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -233,6 +235,6 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   error: {
-    color: '#c00',
+    color: c.danger,
   },
-});
+}));

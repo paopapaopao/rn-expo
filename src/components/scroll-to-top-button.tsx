@@ -1,5 +1,7 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { makeStyles } from '@/lib/theme';
 
 type Props = {
   onPress: () => void;
@@ -9,6 +11,7 @@ type Props = {
 export const ScrollToTopButton = ({ onPress }: Props) => {
   // Stay clear of the home indicator / gesture bar
   const insets = useSafeAreaInsets();
+  const styles = useStyles();
 
   return (
     <Pressable
@@ -27,24 +30,24 @@ export const ScrollToTopButton = ({ onPress }: Props) => {
   );
 };
 
-const styles = StyleSheet.create({
+const useStyles = makeStyles((c) => ({
   button: {
     position: 'absolute',
     right: 20,
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#1a73e8',
+    backgroundColor: c.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.25)',
+    boxShadow: `0 2px 6px ${c.shadow}`,
   },
   pressed: {
     opacity: 0.8,
   },
   icon: {
-    color: '#fff',
+    color: c.onPrimary,
     fontSize: 24,
     fontWeight: '700',
   },
-});
+}));
