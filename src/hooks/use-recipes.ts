@@ -7,7 +7,8 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 
-import { api, type NewRecipe, type RecipePage, type RecipeSearch } from '@/lib/api';
+import { api, type NewRecipe, type Recipe, type RecipePage, type RecipeSearch } from '@/lib/api';
+import { showToast } from '@/lib/toast';
 
 export const recipeKeys = {
   // Every recipe list, one per search
@@ -55,6 +56,7 @@ export const useCreateRecipe = () => {
       // Cache the new recipe so its screen opens instantly, and refetch the lists to include it
       queryClient.setQueryData(recipeKeys.detail(recipe.id), recipe);
       queryClient.invalidateQueries({ queryKey: recipeKeys.lists });
+      showToast(`"${recipe.name}" added`);
     },
   });
 };
@@ -68,6 +70,7 @@ export const useUpdateRecipe = (id: number) => {
       // Show the saved version on the recipe screen right away, and refetch the lists
       queryClient.setQueryData(recipeKeys.detail(id), recipe);
       queryClient.invalidateQueries({ queryKey: recipeKeys.lists });
+      showToast('Changes saved');
     },
   });
 };
@@ -78,6 +81,10 @@ export const useDeleteRecipe = (id: number) => {
   return useMutation({
     mutationFn: () => api.deleteRecipe(id),
     onSuccess: () => {
+      // Read the name before the recipe leaves the cache
+      const name = queryClient.getQueryData<Recipe>(recipeKeys.detail(id))?.name;
+      showToast(name ? `"${name}" deleted` : 'Recipe deleted');
+
       // Drop it from every loaded list right away, then refetch the lists to be sure.
       // The recipe's own cache entry is cleared automatically once its screen closes.
       queryClient.setQueriesData<RecipePages>(
