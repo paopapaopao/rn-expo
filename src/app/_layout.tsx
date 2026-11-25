@@ -5,6 +5,7 @@ import { useEffect, useMemo } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { ThemeToggle } from '@/components/theme-toggle';
+import { Toast } from '@/components/toast';
 import { makeStyles, palettes, useScheme } from '@/lib/theme';
 import { Provider } from '@/Provider';
 
@@ -68,6 +69,7 @@ export default function RootLayout() {
             options={{ title: 'Advanced search', presentation: 'modal' }}
           />
         </Stack>
+        <Toast />
       </ThemeProvider>
     </Provider>
   );
